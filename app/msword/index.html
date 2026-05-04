@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../../scroll.css">
+    <title>TOAST UI Editor App</title>
+    <!-- Toast UI Editor CSS -->
+    <link rel="stylesheet" href="./assets/toastui-editor.min.css" />
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            font-family: 'Arial', sans-serif;
+            background-color: #f4f6f8;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            margin-top: 0;
+            color: #333;
+        }
+
+        #editor {
+            margin-top: 20px;
+        }
+    </style>
+    <script src="../../focusController.js"></script>
+</head>
+
+<body>
+
+    <div class="container">
+        <h1>TOAST UI Editor</h1>
+        <div id="editor"></div>
+    </div>
+
+    <!-- Toast UI Editor JS -->
+    <script src="./assets/toastui-editor-all.min.js"></script>
+    <script>
+        const Editor = toastui.Editor;
+
+        const editor = new Editor({
+            el: document.querySelector('#editor'),
+            height: '600px',
+            initialEditType: 'markdown',
+            previewStyle: 'vertical',
+            initialValue: '# Standalone Editor\n\nThis is the standalone version of the TOAST UI Editor.\nEverything you need is in this folder.'
+        });
+    </script>
+
+</body>
+
+</html>

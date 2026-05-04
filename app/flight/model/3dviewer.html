@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D GLB 뷰어 (models.json 기반)</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: 'Arial', sans-serif;
+            overflow: hidden;
+            color: white;
+        }
+        
+        #container {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+        }
+        
+        .info-panel {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 15px;
+            border-radius: 10px;
+            z-index: 100;
+            max-width: 300px;
+        }
+
+        #file-list {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 15px;
+            border-radius: 10px;
+            z-index: 100;
+            max-width: 300px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        #file-list ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        #file-list li {
+            padding: 8px;
+            cursor: pointer;
+            border-bottom: 1px solid #444;
+        }
+        
+        #file-list li:hover {
+            background-color: #555;
+        }
+        
+        #file-list li.active {
+            background-color: #4CAF50;
+            font-weight: bold;
+        }
+        
+        #controls {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 15px;
+            border-radius: 10px;
+            z-index: 100;
+        }
+        
+        #loading {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 24px;
+            z-index: 200;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 20px;
+            border-radius: 10px;
+        }
+        
+        .control-group { margin: 10px 0; }
+        label { display: block; margin-bottom: 5px; }
+        input[type="range"] { width: 100px; }
+        
+        button {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        
+        button:hover { background: #45a049; }
+    </style>
+</head>
+<body>
+    <div id="container">
+        <div id="info" class="info-panel">
+            <h3>3D GLB 뷰어</h3>
+            <p>마우스로 드래그하여 회전</p>
+            <p>휠로 확대/축소</p>
+            <p>우클릭으로 이동</p>
+        </div>
+        
+        <div id="file-list">
+            <h4>모델 목록</h4>
+            <ul id="model-list-ul"></ul>
+        </div>
+        
+        <div id="controls">
+            <div class="control-group">
+                <label>회전 속도: <span id="rotationSpeed">0.5</span></label>
+                <input type="range" id="rotationSlider" min="0" max="2" step="0.1" value="0.5">
+            </div>
+            <div class="control-group">
+                <label>자동 회전: <span id="autoRotate">ON</span></label>
+                <button id="toggleRotation">자동회전 끄기</button>
+            </div>
+            <div class="control-group">
+                <button id="resetView">뷰 초기화</button>
+                <button id="wireframe">와이어프레임</button>
+            </div>
+        </div>
+        
+        <div id="loading" style="display: none;">모델 로딩 중...</div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/DRACOLoader.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
+    <script>
+        let scene, camera, renderer, controls, model, mixer;
+        const clock = new THREE.Clock();
+        let autoRotate = true;
+        let rotationSpeed = 0.5;
+        let wireframeMode = false;
+
+        // 씬 초기화
+        function init() {
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(0x87CEEB);
+
+            camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            camera.position.set(0, 5, 10);
+
+            renderer = new THREE.WebGLRenderer({ antialias: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.shadowMap.enabled = true;
+            renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+            document.getElementById('container').appendChild(renderer.domElement);
+
+            const ambientLight = new THREE.AmbientLight(0x404040, 0.6);
+            scene.add(ambientLight);
+
+            const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
+            directionalLight.position.set(10, 10, 5);
+            directionalLight.castShadow = true;
+            scene.add(directionalLight);
+
+            const pointLight = new THREE.PointLight(0xffffff, 0.5);
+            pointLight.position.set(-10, 10, -10);
+            scene.add(pointLight);
+
+            controls = new THREE.OrbitControls(camera, renderer.domElement);
+            controls.enableDamping = true;
+            controls.dampingFactor = 0.05;
+            controls.autoRotate = autoRotate;
+            controls.autoRotateSpeed = rotationSpeed;
+
+            const gridHelper = new THREE.GridHelper(20, 20);
+            scene.add(gridHelper);
+            
+            // 파일 목록 로드 및 첫 번째 모델 자동 로드
+            loadFileList();
+            
+            setupEventListeners();
+            animate();
+        }
+        
+        // 서버에서 glb 파일 목록을 가져오는 함수 -> models.json을 읽도록 수정
+        async function loadFileList() {
+            try {
+                // [수정] '/files' 대신 'models.json' 파일을 요청합니다.
+                const response = await fetch('models.json');
+                if (!response.ok) {
+                    // models.json 파일이 없거나 읽을 수 없는 경우 오류 처리
+                    throw new Error('models.json 파일을 찾을 수 없습니다. (HTTP 상태: ' + response.status + ')');
+                }
+                const files = await response.json(); // json 파일 내용을 읽어옴
+                const listElement = document.getElementById('model-list-ul');
+                listElement.innerHTML = ''; // 기존 목록 초기화
+
+                if (files.length > 0) {
+                    files.forEach((file, index) => {
+                        const li = document.createElement('li');
+                        li.textContent = file;
+                        li.dataset.filename = file;
+                        li.addEventListener('click', () => {
+                            loadModel(file);
+                            // 모든 li에서 active 클래스 제거 후 현재 클릭된 li에 추가
+                            document.querySelectorAll('#model-list-ul li').forEach(item => item.classList.remove('active'));
+                            li.classList.add('active');
+                        });
+                        listElement.appendChild(li);
+
+                        // 첫 번째 모델을 자동으로 로드
+                        if (index === 0) {
+                            li.classList.add('active');
+                            loadModel(file);
+                        }
+                    });
+                } else {
+                    listElement.innerHTML = '<li>models.json 파일에 모델이 없습니다.</li>';
+                }
+            } catch (error) {
+                console.error('파일 목록 로딩 오류:', error);
+                document.getElementById('model-list-ul').innerHTML = '<li>models.json 파일을 불러오는 데 실패했습니다. 파일이 존재하고 형식이 올바른지 확인하세요.</li>';
+            }
+        }
+        
+        // 모델 로드
+        function loadModel(modelName) {
+            // 기존 모델이 있다면 씬에서 제거
+            if (model) {
+                scene.remove(model);
+                mixer = null;
+            }
+            
+            const loadingDiv = document.getElementById('loading');
+            loadingDiv.style.display = 'block';
+
+            const loader = new THREE.GLTFLoader();
+            const dracoLoader = new THREE.DRACOLoader();
+            dracoLoader.setDecoderPath('https://www.gstatic.com/draco/versioned/decoders/1.4.3/');
+            loader.setDRACOLoader(dracoLoader);
+            
+            // [수정] models.json에 정의된 전체 경로를 사용하도록 변경
+            loader.load(
+                modelName, // modelName은 이미 전체 경로입니다
+                function (gltf) {
+                    model = gltf.scene;
+                    
+                    const box = new THREE.Box3().setFromObject(model);
+                    const size = box.getSize(new THREE.Vector3());
+                    const maxDim = Math.max(size.x, size.y, size.z);
+                    const scale = 5 / maxDim;
+                    model.scale.setScalar(scale);
+                    
+                    model.position.y = 0;
+                    
+                    model.traverse(function (child) {
+                        if (child.isMesh) {
+                            child.castShadow = true;
+                            child.receiveShadow = true;
+                            child.material.wireframe = wireframeMode;
+                        }
+                    });
+                    
+                    scene.add(model);
+
+                    // 애니메이션 처리
+                    if (gltf.animations && gltf.animations.length) {
+                        mixer = new THREE.AnimationMixer(model);
+                        gltf.animations.forEach((clip) => {
+                            mixer.clipAction(clip).play();
+                        });
+                    }
+
+                    loadingDiv.style.display = 'none';
+                    
+                    resetView();
+                },
+                function (xhr) {
+                    const percent = (xhr.loaded / xhr.total * 100).toFixed(0);
+                    loadingDiv.textContent = `모델 로딩 중... ${percent}%`;
+                },
+                function (error) {
+                    console.error('모델 로딩 오류:', error);
+                    loadingDiv.textContent = '모델 로딩 실패';
+                }
+            );
+        }
+
+        // 뷰 초기화 함수
+        function resetView() {
+            if (model) {
+                const box = new THREE.Box3().setFromObject(model);
+                const center = box.getCenter(new THREE.Vector3());
+                const size = box.getSize(new THREE.Vector3());
+                const maxDim = Math.max(size.x, size.y, size.z);
+                const fov = camera.fov * (Math.PI / 180);
+                let cameraZ = Math.abs(maxDim / 2 / Math.tan(fov / 2));
+                
+                cameraZ *= 1.5; // 약간의 여유 공간
+                
+                camera.position.set(center.x, center.y + maxDim / 4, center.z + cameraZ);
+                controls.target.copy(center);
+                controls.update();
+            }
+        }
+
+        // 이벤트 리스너 설정
+        function setupEventListeners() {
+            document.getElementById('rotationSlider').addEventListener('input', function(e) {
+                rotationSpeed = parseFloat(e.target.value);
+                document.getElementById('rotationSpeed').textContent = rotationSpeed;
+                controls.autoRotateSpeed = rotationSpeed;
+            });
+
+            document.getElementById('toggleRotation').addEventListener('click', function() {
+                autoRotate = !autoRotate;
+                controls.autoRotate = autoRotate;
+                document.getElementById('autoRotate').textContent = autoRotate ? 'ON' : 'OFF';
+                this.textContent = autoRotate ? '자동회전 끄기' : '자동회전 켜기';
+            });
+            
+            document.getElementById('resetView').addEventListener('click', resetView);
+
+            document.getElementById('wireframe').addEventListener('click', function() {
+                wireframeMode = !wireframeMode;
+                if (model) {
+                    model.traverse(function (child) {
+                        if (child.isMesh) {
+                            child.material.wireframe = wireframeMode;
+                        }
+                    });
+                }
+                this.textContent = wireframeMode ? '솔리드' : '와이어프레임';
+            });
+
+            window.addEventListener('resize', onWindowResize);
+        }
+
+        // 윈도우 리사이즈 처리
+        function onWindowResize() {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        }
+
+        // 애니메이션 루프
+        function animate() {
+            requestAnimationFrame(animate);
+            const delta = clock.getDelta();
+            if (mixer) {
+                mixer.update(delta);
+            }
+            controls.update();
+            renderer.render(scene, camera);
+        }
+
+        // 초기화 시작
+        init();
+    </script>
+</body>
+</html>

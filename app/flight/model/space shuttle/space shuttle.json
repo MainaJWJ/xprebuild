@@ -1,0 +1,85 @@
+{
+  "model": {
+    "file": "model/space shuttle/space shuttle.glb",
+    "scale": 5,
+    "initialRotation": { "x": 0, "y": 90, "z": 0 },
+    "autoRotation": {
+      "enabled": false,
+      "speed": { "x": 0, "y": 0, "z": 0 }
+    }
+  },
+  "movement": {
+    "orbit": {
+      "target": "Sun",
+      "distance": 700000,
+      "speed": 0.0002,
+      "inclination": 1.5
+    },
+    "rotation": {
+      "axis": { "x": 0, "y": 1, "z": 0 },
+      "speed": 0.01
+    }
+  },
+  "performance": {
+    "speed": 60,
+    "acceleration": 6,
+    "turnSensitivity": 0.015,
+    "pitchLimits": { "up": 80, "down": -60 },
+    "maxRollAngle": 24
+  },
+  "camera": {
+    "follow": {
+      "x": -533,
+      "y": 200,
+      "z": 0
+    },
+    "rear_view": {
+      "x": 5333,
+      "y": 267,
+      "z": 0
+    }
+  },
+  "combat": {
+    "health": 100,
+    "defense": 50,
+    "weapons": [
+      {
+        "weaponFile": "model/weapons/laser/laser.json",
+        "key": "a",
+        "hardpoints": [
+          { "x": 30, "y": 0, "z": -2 },
+          { "x": 30, "y": 0, "z": 2 }
+        ]
+      },
+      {
+        "weaponFile": "model/weapons/plasma/plasma.json",
+        "key": "s",
+        "hardpoints": [
+          { "x": 0, "y": 0, "z": -25 },
+          { "x": 0, "y": 0, "z": 25 }
+        ]
+      },
+      {
+        "weaponFile": "model/weapons/missile/missile.json",
+        "key": "d",
+        "hardpoints": [
+          { "x": 100, "y": -10, "z": 0 }
+        ]
+      }
+    ]
+  },
+  "future_expansion": {
+  },
+  "visuals": {
+    "engineHardpoints": [
+      { "x": 0, "y": -1.1, "z": -0.7 },
+      { "x": 0, "y": -1.1, "z": 0.7 }
+
+    ],
+    "trailColor": "0x00aaff",
+    "trailSize": {
+      "normal": 0.6,
+      "boost": 0.6
+    }
+  }
+}

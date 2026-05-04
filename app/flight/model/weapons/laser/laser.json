@@ -1,0 +1,20 @@
+{
+  "id": "laser_basic",
+  "name": "레이저 기본형",
+  "visuals": {
+    "color": "#00ff00",
+    "size": 0.5,
+    "geometry": "cylinder",
+    "length": 60.0,
+    "radius": 0.6
+  },
+  "performance": {
+    "damage": 10,
+    "fireRate": 0.002,
+    "speed": 400,
+    "spread": 0.06,
+    "ammo": 1000,
+    "lifespan": 5.3,
+    "fadeTime": 0.3
+  }
+}

@@ -1,0 +1,47 @@
+{
+    "project": "Space Flight Simulator -> .io Space Combat",
+    "description": "3D 기반의 온라인 멀티서버 확장성을 지닌 .io 스타일 웹 슈팅 게임",
+    "rules_and_constraints": [
+        "Language: HTML, CSS, Vanilla JavaScript only",
+        "Engine: Three.js r128",
+        "Architecture: Modular structure (core/, ui/, entities/)",
+        "Scale Constraint: 3D map bounds are massive (-6000 to +6000). Visual objects like items should have large physical scales (e.g. radius 200) to be visible over the high player speed (multiplier 50) and far camera offset (z-distance 200)."
+    ],
+    "features": [
+        {
+            "name": "Game State Management",
+            "module": "core/gameState.js",
+            "status": "completed",
+            "details": "Handles seamless transition between LOBBY (Spectator mode), PLAYING (Spawn), and DEAD states without halting the webgl rendering loop."
+        },
+        {
+            "name": "Player RPG & Upgrade System",
+            "module": "core/playerState.js",
+            "status": "completed",
+            "details": "Manages player XP, leveling up, and dynamic multipliers for 6 core stats (Speed, Agility, Damage, HP, Fire Rate, Bullet Speed)."
+        },
+        {
+            "name": "Item System",
+            "module": "core/itemManager.js",
+            "status": "completed",
+            "details": "Spawns massive glowing red orbs (radius 200) yielding random XP on collision, self-destructing after 60s."
+        },
+        {
+            "name": "Dynamic UI Components",
+            "module": "ui/*.js",
+            "status": "completed",
+            "details": "Modular injection of Lobby, Death Screen, Leaderboard, Upgrade Menu, and Live Stats Monitor."
+        },
+        {
+            "name": "Engine Trail VFX",
+            "module": "myShipControl.js",
+            "status": "completed",
+            "details": "Spawns fading spherical particles behind the spaceship using localized engineHardpoints mimicking real thrust effects. Dynamically shifts color and size on boost."
+        }
+    ],
+    "future_goals": [
+        "Server-side multiplayer integration via WebSocket/Node",
+        "Refining visual design of DOM UI components",
+        "Adding diverse enemy AI behaviors"
+    ]
+}

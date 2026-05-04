@@ -1,0 +1,181 @@
+{
+  "project_name": "Simple Space Flight Simulator",
+  "description": "A simplified 3D space simulation featuring a black hole and a controllable space shuttle, based on code from the 'simulator' folder. Now refactored to support modular celestial body loading.",
+  "folder_structure": {
+    "new_test": {
+      "files": [
+        "index.html",
+        "myShipControl.js",
+        "CelestialBodyManager.js",
+        "celestialBodyList.js",
+        "setting.json",
+        "favicon.png"
+      ],
+      "directories": {
+        "model": {
+          "description": "Contains 3D models and their unified configuration files.",
+          "contents": [
+            "black hole/ (directory with black hole.glb and black hole.json)",
+            "earth/ (directory with earth.glb and earth.json)",
+            "jupiter/ (directory with jupiter.glb and jupiter.json)",
+            "mars/ (directory with mars.glb and mars.json)",
+            "mercury/ (directory with mercury.glb and mercury.json)",
+            "neptune/ (directory with neptune.glb and neptune.json)",
+            "pluto/ (directory with pluto.glb and pluto.json)",
+            "saturn/ (directory with saturn.glb and saturn.json)",
+            "space shuttle/ (directory with space shuttle.glb and space shuttle.json)",
+            "spear of adun/ (directory with spear of adun.glb and spear of adun.json)",
+            "sun/ (directory with sun.glb and sun.json)",
+            "uranus/ (directory with uranus.glb and uranus.json)",
+            "venus/ (directory with venus.glb and venus.json)"
+          ]
+        }
+      }
+    }
+  },
+  "files": {
+    "index.html": {
+      "purpose": "Main HTML file to set up the Three.js scene, initialize modules, and run the main animation loop.",
+      "key_components": [
+        "HTML structure with a <main id='world'> element for the 3D canvas.",
+        "CSS styles for full-screen, no-margin layout with a black background.",
+        "Includes Three.js core (three.min.js) and GLTFLoader from CDN.",
+        "Includes custom modules: celestialBodyList.js, CelestialBodyManager.js, myShipControl.js.",
+        "Initializes THREE.Scene, THREE.PerspectiveCamera, THREE.WebGLRenderer.",
+        "Adds AmbientLight and PointLight for scene illumination.",
+        "Initializes the CelestialBodyManager and loads bodies defined in CELESTIAL_BODY_LIST.",
+        "Initializes the spaceship controller.",
+        "Starts the main animation loop.",
+        "The animation loop calls update functions for spaceship movement/animation and celestial body updates (animations, orbits, rotations).",
+        "Renders the scene each frame.",
+        "Event listeners for window resize and 'B' key press for camera mode toggle."
+      ],
+      "recent_changes": [
+        "Removed direct black hole loading code.",
+        "Added script includes for CelestialBodyManager.js and celestialBodyList.js.",
+        "Refactored initialization logic to load celestial bodies first.",
+        "Added celestialBodyManager.update() call to the animation loop.",
+        "Renamed spaceshipController.js to myShipControl.js and updated references.",
+        "Renamed celestialBodiesToLoad.js to celestialBodyList.js and updated references."
+      ]
+    },
+    "myShipControl.js": {
+      "purpose": "A modular JavaScript file responsible for loading, controlling, and animating the space shuttle.",
+      "key_features_and_logic": [
+        "Manages global state for the spaceship (model, mixer, config, control state).",
+        "Defines DEFAULT_CONFIG for spaceship settings (model file, scale, initial rotation, performance, camera) used if JSON loading fails.",
+        "Function loadSpaceshipConfig: Asynchronously fetches 'model/space shuttle/space shuttle.json'.",
+        "Function loadSpaceshipModel: Uses GLTFLoader to load 'space shuttle.glb', applies scale/rotation from config, sets initial position (0, 50, 200), and sets up animations.",
+        "Function setupKeyboardControls: Sets up 'keydown'/'keyup' listeners to track key presses in spaceship.keys.",
+        "Function updateSpaceship: Core control logic, largely copied from simulator/control.js updatePlane.",
+        "  - Updates yawAngle and pitchAngle based on arrow key input with limits.",
+        "  - Calculates rollAngle based on yaw input for smooth banking.",
+        "  - Applies rotation using THREE.Quaternion in Yaw * Pitch * Roll order.",
+        "  - Moves the ship forward along its local +X axis, applying speed and deltaTime.",
+        "  - Applies acceleration boost when Space key is pressed.",
+        "  - Calls updateSpaceshipCamera.",
+        "Function updateSpaceshipCamera: Calculates camera position and look-at target based on 'follow' or 'rear_view' mode and config settings, using lerp for smooth movement.",
+        "Function updateSpaceshipAnimation: Updates the model's animations using THREE.AnimationMixer.",
+        "Function initMyShipControl: Main initialization function that loads config, loads model, and sets up controls."
+      ],
+      "recent_changes": [
+        "Renamed from spaceshipController.js to myShipControl.js.",
+        "Updated function name from initSpaceshipController to initMyShipControl.",
+        "Re-implemented playerScale functionality to control spaceship size and camera distance.",
+        "Added mouse wheel event listener for camera zoom adjustment.",
+        "playerScale affects model scale and camera distance, but not spaceship speed."
+      ]
+    },
+    "CelestialBodyManager.js": {
+      "purpose": "A modular JavaScript class to manage loading, configuring, and animating celestial bodies based on a unified JSON schema.",
+      "key_features_and_logic": [
+        "Class constructor takes a Three.js Scene object.",
+        "Stores loaded bodies in an internal array `this.bodies`.",
+        "Function loadBodies(bodyNames): Takes an array of body names to load.",
+        "  - Iterates through body names.",
+        "  - Fetches 'model/[name]/[name].json' for each body.",
+        "  - Loads the 3D model specified in the config using GLTFLoader.",
+        "  - Applies model scale and initial rotation from config.",
+        "  - Processes movement.orbit and movement.rotation settings.",
+        "  - If orbit is defined with non-zero speed, places the body in a THREE.Group for orbital mechanics.",
+        "  - If orbit speed is zero, places the body at a fixed position.",
+        "  - Sets up THREE.AnimationMixer for model animations if present and enabled in config.",
+        "  - Adds the body's group/model to the scene.",
+        "  - Stores a reference to the body in `this.bodies` for updates.",
+        "Function update(deltaTime): Called every frame in the animation loop.",
+        "  - Iterates through `this.bodies`.",
+        "  - Updates model animations using the stored mixer.",
+        "  - If the body has an orbit, calculates and updates its position based on angle, speed, and center.",
+        "  - If the body has rotation, calculates and applies a quaternion rotation based on axis and speed."
+      ],
+      "recent_changes": [
+        "Added support for loading settings from setting.json.",
+        "Implemented solarSystemScale functionality to adjust celestial body sizes and orbits.",
+        "solarSystemScale affects model scale, orbit distance, orbit center, and static body positions.",
+        "Modified orbit logic to allow bodies with distance=0 to be positioned at orbit center.",
+        "Prepared implementation for named orbit targets (e.g., Moon orbiting Earth by name)."
+      ]
+    },
+    "celestialBodyList.js": {
+      "purpose": "Defines a simple JavaScript array of celestial body names to be loaded by CelestialBodyManager.",
+      "key_components": [
+        "Exports a constant array CELESTIAL_BODY_LIST.",
+        "Initially contains ['black hole'].",
+        "Adding or removing strings from this array controls which celestial bodies appear in the simulation."
+      ],
+      "recent_changes": [
+        "Renamed from celestialBodiesToLoad.js to celestialBodyList.js.",
+        "Updated constant name from CELESTIAL_BODIES_TO_LOAD to CELESTIAL_BODY_LIST."
+      ]
+    },
+    "setting.json": {
+      "purpose": "Configuration file for global simulation settings.",
+      "key_components": [
+        "solarSystemScale: Controls the overall size of the solar system (celestial body sizes and orbit distances).",
+        "playerScale: Controls the player's ship size and camera distance.",
+        "Example: Setting solarSystemScale to 2.0 makes all celestial bodies and their orbits twice as large.",
+        "Example: Setting playerScale to 0.5 makes the player's ship half size and camera distance half."
+      ],
+      "recent_changes": [
+        "Created new file to externalize global simulation settings.",
+        "Added solarSystemScale setting with descriptive comments.",
+        "Re-added playerScale setting with descriptive comments."
+      ]
+    },
+    "model/black hole/black hole.json": {
+      "purpose": "Configuration file for the black hole celestial body, using the unified schema.",
+      "key_components": [
+        "name: 'black_hole'",
+        "type: 'black_hole'",
+        "model: { file, scale, initialRotation }",
+        "movement: { orbit: { target, distance, speed: 0.0, inclination }, rotation: { axis, speed: 0.0 } }",
+        "animation: { enabled: true }"
+      ],
+      "recent_changes": [
+        "Updated schema to match the unified format used by CelestialBodyManager and myShipControl.",
+        "Set orbit.speed and rotation.speed to 0.0 to make it a static object."
+      ]
+    }
+  },
+  "summary": {
+    "environment": "A simple space environment that can now load multiple celestial bodies defined in a list.",
+    "player": "A controllable space shuttle loaded and configured via 'space shuttle.json'.",
+    "controls": "Arrow keys for pitch/yaw, Spacebar for boost, 'B' key to toggle camera view, Mouse wheel for camera zoom.",
+    "visuals": "Features a follow camera and a rear-view camera for the spaceship.",
+    "modularity": "Spaceship logic is in 'myShipControl.js'. Celestial body logic is in 'CelestialBodyManager.js'. The list of bodies to load is in 'celestialBodyList.js'.",
+    "extensibility": "To add a new celestial body: 1) Add its name to 'celestialBodyList.js'. 2) Create 'model/[name]/[name].json' with its configuration. 3) Place the '.glb' model file in the same directory.",
+    "configuration": "Both the spaceship and celestial bodies use a unified JSON schema for configuration, promoting consistency. Global settings are managed in 'setting.json'.",
+    "recent_updates": [
+      "Renamed key modules for clarity (spaceshipController.js -> myShipControl.js, celestialBodiesToLoad.js -> celestialBodyList.js).",
+      "Implemented solarSystemScale in CelestialBodyManager.js to control the size of the entire simulation space.",
+      "Re-implemented playerScale in myShipControl.js to control spaceship size and camera distance.",
+      "Added mouse wheel zoom functionality for camera control.",
+      "Modified CelestialBodyManager.js to support bodies positioned at orbit center when distance=0.",
+      "Prepared implementation for named orbit targets (work in progress).",
+      "Integrated solar system celestial body models (sun, planets, etc.) from the 'simulator' folder.",
+      "Restructured model files into individual folders and updated configuration paths.",
+      "Standardized model sizes by measuring actual dimensions and adjusting scale values in config files.",
+      "Enhanced and moved the 3D model size measurement tool to the 'model' folder for easy access."
+    ]
+  }
+}

@@ -1,0 +1,100 @@
+{
+  "project_name": "Windows XP Web Emulator",
+  "framework": "Vanilla HTML/CSS/JS",
+  "features": [
+    "Desktop UI with Window Manager",
+    "Taskbar & Start Menu",
+    "App Engine & App Registry",
+    "Logon/Shutdown Managers",
+    "Built-in Apps (Calculator, Notepad, Minesweeper, etc.)",
+    "3D Simulator Modules (Solar System, Flight)"
+  ],
+  "recent_changes": [
+    {
+      "date": "2026-05-04",
+      "action": "Integrated 5 New Screensavers",
+      "description": [
+        "Added 5 new screensavers (Fish, Flying Toasters, Hard Rain, Rainstorm, Starry Night) to app/screensaver/.",
+        "Registered new screensavers in appRegistry.js for system-wide recognition.",
+        "Updated app/properties/displayProperties.html to include new screensavers in the selection list.",
+        "Integrated preview functionality for the new screensavers in app/properties/properties.js."
+      ]
+    },
+    {
+      "date": "2026-04-30",
+      "action": "Implemented Update Screen Overlay Management",
+      "description": [
+        "Created updateManager.js to manage the update screen as a full-screen system overlay.",
+        "Modified update.html to communicate completion status to the parent window via postMessage.",
+        "Integrated UpdateManager into appengine.js, providing a global window.startUpdate() function and message listener to trigger the update sequence.",
+        "Ensured update screen overlay uses a higher z-index (1100) to correctly cover other system components including the logon screen."
+      ]
+    },
+    {
+      "date": "2026-04-30",
+      "action": "Fixed UI gap in Update Screen",
+      "description": [
+        "Reduced vertical spacing between 'Installing Windows Updates...' and warning text in update.html.",
+        "Refactored #text-under-logo ID to .text-under-logo class across update.html, logon.html, and logoff.html for better consistency and to fix duplicate ID usage.",
+        "Implemented dynamic percentage increment logic for the update screen to simulate a realistic Windows update process."
+      ]
+    },
+    {
+      "date": "2026-04-24",
+      "action": "Finalized WMP Full-Screen Playback",
+      "description": [
+        "Implemented .fullscreen-video CSS mode in wmp8.css and integrated Browser Fullscreen API for monitor-level full-screen playback.",
+        "Updated wmplayerManager.js to allow full-screen permissions for the WMP iframe.",
+        "Added event listeners for full-screen toggle button, video double-click, and automatic UI sync via fullscreenchange event."
+      ]
+    },
+    {
+      "date": "2026-04-19",
+      "action": "Integrated Spider Solitaire Menu Bar",
+      "description": [
+        "Enabled functional integration for Spider Solitaire menu bar (New Game, Restart, Difficulty, Hint, Undo, Sound).",
+        "Integrated Windows XP-style menu bar (File, Edit, View, Help) into Spider Solitaire."
+      ]
+    },
+    {
+      "date": "2026-04-19",
+      "action": "Integrated Spider Solitaire",
+      "description": "Added Spider Solitaire to the app registry, placed its icon on the desktop (Column 2), and enabled the shortcut in the Start Menu's Games folder."
+    },
+    {
+      "date": "2026-04-19",
+      "action": "Reorganized Logon Files",
+      "description": "Moved logonManager.js and logon.html into app/logon/ directory and updated all identified references and relative paths."
+    },
+    {
+      "date": "2026-04-14",
+      "action": "Expanded Start Menu App Launcher Integration",
+      "description": "Refactored startMenu.js to use global event delegation utilizing data-app-id and appRegistry.js. Expanded integration beyond the left panel to include right panel items (My Computer, My Documents) and deeply nested functional apps within the 'All Programs' submenu (e.g. Calculator, Pinball, Minesweeper, IE, WMP)."
+    },
+    {
+      "date": "2026-04-14",
+      "action": "Applied window focus controller to apps",
+      "description": "Added focusController.js script to Pikachu Volleyball, HWP Viewer (index.html & editor.html), WMPlayer, PowerPoint, Excel, Word, Flight simulator, Pinball, and Webamp to enable window focus on click."
+    },
+    {
+      "date": "2026-04-13",
+      "action": "Conditional Clippy appearance",
+      "description": "Refactored clippyManager.js to show Clippy only after a successful logon by listening for the 'logonSuccess' message from logonManager."
+    },
+    {
+      "date": "2026-04-13",
+      "action": "Changed Clippy character",
+      "description": "Updated clippyManager.js to load the default 'Clippy' character instead of 'Rover'."
+    },
+    {
+      "date": "2026-04-13",
+      "action": "Registered HWP Viewer and Pikachu Volleyball",
+      "description": "Added configuration for HWP Viewer and Pikachu Volleyball to appRegistry.js and assigned them to Desktop Column 4."
+    },
+    {
+      "date": "2026-03-30",
+      "action": "Created app/displayProperties.html",
+      "description": "Mockup of Windows XP Display Properties window inspired by wins95Portfolio-main."
+    }
+  ]
+}

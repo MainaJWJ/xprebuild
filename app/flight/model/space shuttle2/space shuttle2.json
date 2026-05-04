@@ -1,0 +1,71 @@
+{
+  "name": "Target Dummy Alpha",
+  "type": "enemy",
+  "position": { "x": 300, "y": 50, "z": 100 },
+  "model": {
+    "file": "model/space shuttle2/space shuttle2.glb",
+    "scale": 5,
+    "initialRotation": { "x": 0, "y": 90, "z": 0 },
+    "autoRotation": {
+      "enabled": false,
+      "speed": { "x": 0, "y": 0, "z": 0 }
+    }
+  },
+  "ai": {
+    "script": "enemyAi",
+    "speed": 35,
+    "turnSpeed": 0.05,
+    "patrolRadius": 1500,
+    "detectionRange": 2000
+  },
+  "performance": {
+    "speed": 60,
+    "acceleration": 100,
+    "turnSensitivity": 0.025,
+    "pitchLimits": { "up": 80, "down": -60 },
+    "maxRollAngle": 24
+  },
+  "camera": {
+    "follow": {
+      "x": -533,
+      "y": 200,
+      "z": 0
+    },
+    "rear_view": {
+      "x": 5333,
+      "y": 267,
+      "z": 0
+    }
+  },
+  "combat": {
+    "health": 100,
+    "defense": 50,
+    "weapons": [
+      {
+        "weaponFile": "model/weapons/laser/laser.json",
+        "key": "a",
+        "hardpoints": [
+          { "x": 40, "y": 0, "z": 0 }
+        ]
+      },
+      {
+        "weaponFile": "model/weapons/plasma/plasma.json",
+        "key": "s",
+        "hardpoints": [
+          { "x": 0, "y": 0, "z": -25 },
+          { "x": 0, "y": 0, "z": 25 }
+        ]
+      },
+      {
+        "weaponFile": "model/weapons/missile/missile.json",
+        "key": "d",
+        "hardpoints": [
+          { "x": -10, "y": -10, "z": -15 },
+          { "x": -10, "y": -10, "z": 15 }
+        ]
+      }
+    ]
+  },
+  "future_expansion": {
+  }
+}

@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Windows XP Style Components</title>
+    <link rel="stylesheet" href="xpdesign.css">
+    <link rel="stylesheet" href="../../scroll.css">
+    <script type="module" src="xpdesign.js"></script>
+    <script src="../../focusController.js"></script>
+</head>
+
+<body class="use-preferred-font">
+    <!-- Input Controls -->
+    <h2>Input Controls</h2>
+    <div class="frame padding">
+        <div class="frame-title">Form Elements</div>
+        <div class="grid gap" style="grid-template-columns: 1fr 1fr; align-items: center;">
+            <label for="text-input">Text Input:</label>
+            <input id="text-input" type="text" placeholder="Enter text here" />
+
+            <label for="password-input">Password:</label>
+            <input id="password-input" type="password" placeholder="Password" />
+
+            <label>Checkbox:</label>
+            <div>
+                <input type="checkbox" id="chk1" /> <label for="chk1">Option 1</label>
+                <input type="checkbox" id="chk2" checked /> <label for="chk2">Option 2 (checked)</label>
+            </div>
+
+            <label>Radio Buttons:</label>
+            <div>
+                <input type="radio" id="rad1" name="radio" checked /> <label for="rad1">Choice 1</label>
+                <input type="radio" id="rad2" name="radio" /> <label for="rad2">Choice 2</label>
+            </div>
+
+            <label>Buttons:</label>
+            <div>
+                <button>Normal Button</button>
+                <button>Default Button</button>
+            </div>
+
+            <label>Slider:</label>
+            <div>
+                <input type="range" min="0" max="100" value="50" />
+            </div>
+
+            <label>Vertical Slider (Custom Length):</label>
+            <!-- Set the length using the CSS variable (height) and width explicitly -->
+            <div class="vertical-slider-container" style="--slider-length: 200px; width: 100px;">
+                <input type="range" class="vertical-slider" min="0" max="100" value="50" />
+            </div>
+        </div>
+    </div>
+
+
+
+    <!-- Progress Bar -->
+    <h2>Progress Indicators</h2>
+    <div class="padding">
+        <div class="flex-row gap align-center">
+            <span>Loading:</span>
+            <div class="progress-bar" style="width: 200px;">
+                <div class="progress-bar-fill" style="width: 65%;"></div>
+            </div>
+            <span>65%</span>
+        </div>
+    </div>
+
+    <!-- List View -->
+    <h2>List View</h2>
+    <div class="list" role="listbox" aria-multiselectable="true" style="height: 200px; overflow: auto;">
+        <table class="detailed">
+            <thead>
+                <tr>
+                    <th scope="col" role="button" aria-sort="ascending">Name</th>
+                    <th scope="col" role="button" style="text-align: right;">Size</th>
+                    <th scope="col" role="button">Type</th>
+                    <th scope="col" role="button">Modified</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr role="option">
+                    <td>
+                        <div class="icon">
+                            <img src="./images/folder16.png" />
+                            <div class="icon-label">Documents</div>
+                        </div>
+                    </td>
+                    <td style="text-align: right;"></td>
+                    <td>File Folder</td>
+                    <td>2025-01-01 12:00</td>
+                </tr>
+                <tr role="option">
+                    <td>
+                        <div class="icon">
+                            <img src="./images/folder16.png" />
+                            <div class="icon-label">Pictures</div>
+                        </div>
+                    </td>
+                    <td style="text-align: right;"></td>
+                    <td>File Folder</td>
+                    <td>2025-01-01 12:00</td>
+                </tr>
+                <tr role="option">
+                    <td>
+                        <div class="icon">
+                            <img src="./images/text.png" />
+                            <div class="icon-label">readme.txt</div>
+                        </div>
+                    </td>
+                    <td style="text-align: right;">2KB</td>
+                    <td>Text Document</td>
+                    <td>2025-01-01 12:00</td>
+                </tr>
+                <tr role="option">
+                    <td>
+                        <div class="icon">
+                            <img src="./images/image.png" />
+                            <div class="icon-label">screenshot.png</div>
+                        </div>
+                    </td>
+                    <td style="text-align: right;">150KB</td>
+                    <td>PNG Image</td>
+                    <td>2025-01-01 12:00</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Tree View -->
+    <h2>Tree View</h2>
+    <div class="list" style="height: 200px; overflow: auto;">
+        <ul role="tree">
+            <li>
+                <div class="icon">
+                    <img src="./images/desktop16.png" />
+                    <div class="icon-label">Desktop</div>
+                </div>
+                <ul>
+                    <li>
+                        <details open>
+                            <summary class="icon">
+                                <img src="./images/computer16.png" />
+                                <div class="icon-label">My Computer</div>
+                            </summary>
+                            <ul>
+                                <li>
+                                    <details open>
+                                        <summary class="icon">
+                                            <img src="./images/disk16.png" />
+                                            <div class="icon-label">(C:)</div>
+                                        </summary>
+                                        <ul>
+                                            <li>
+                                                <div class="icon">
+                                                    <img src="./images/folder16.png" />
+                                                    <div class="icon-label">Program Files</div>
+                                                </div>
+                                            </li>
+                                            <li>
+                                                <div class="icon">
+                                                    <img src="./images/folder16.png" />
+                                                    <div class="icon-label">Windows</div>
+                                                </div>
+                                            </li>
+                                            <li>
+                                                <div class="icon">
+                                                    <img src="./images/folder16.png" />
+                                                    <div class="icon-label">Documents and Settings</div>
+                                                </div>
+                                            </li>
+                                        </ul>
+                                    </details>
+                                </li>
+                                <li>
+                                    <div class="icon">
+                                        <img src="./images/disk16.png" />
+                                        <div class="icon-label">(D:)</div>
+                                    </div>
+                                </li>
+                            </ul>
+                        </details>
+                    </li>
+                    <li>
+                        <div class="icon">
+                            <img src="./images/folder16.png" />
+                            <div class="icon-label">My Documents</div>
+                        </div>
+                    </li>
+                </ul>
+            </li>
+        </ul>
+    </div>
+
+    <!-- Menu 1 (Popup Menu) -->
+    <h2>Menu 1 (Popup Menu)</h2>
+    <ul role="menu" id="menu1" class="xp-popup-menu">
+        <li tabindex="0">Arrange Icons By</li>
+        <li tabindex="0">Refresh</li>
+        <li role="separator"></li>
+        <li tabindex="0">Paste</li>
+        <li tabindex="0">Paste Shortcut</li>
+        <li role="separator"></li>
+        <li tabindex="0">New</li>
+        <li role="separator"></li>
+        <li tabindex="0">Properties</li>
+    </ul>
+
+    <!-- Menu 2 (Menu Bar) -->
+    <h2>Menu 2 (Menu Bar)</h2>
+    <div id="menu2" class="xp-menubar">
+        <div class="menu-item"><span><u>F</u>ile</span>
+            <ul class="dropdown-menu">
+                <li class="disabled">Create Shortcut</li>
+                <li class="disabled">Delete</li>
+                <li class="disabled">Rename</li>
+                <li class="disabled">Properties</li>
+                <li class="separator"></li>
+                <li data-action="Close">Close</li>
+            </ul>
+        </div>
+        <div class="menu-item"><span><u>E</u>dit</span>
+            <ul class="dropdown-menu">
+                <li class="disabled">Undo</li>
+                <li class="separator"></li>
+                <li class="disabled">Cut</li>
+                <li class="disabled">Copy</li>
+                <li class="disabled">Paste</li>
+                <li class="separator"></li>
+                <li>Select All</li>
+                <li>Invert Selection</li>
+            </ul>
+        </div>
+        <div class="menu-item"><span><u>V</u>iew</span>
+            <ul class="dropdown-menu">
+                <li>Toolbars</li>
+                <li>Status Bar</li>
+                <li>Explorer Bar</li>
+                <li class="separator"></li>
+                <li>Thumbnails</li>
+                <li>Tiles</li>
+                <li>Icons</li>
+                <li>List</li>
+                <li>Details</li>
+            </ul>
+        </div>
+        <div class="menu-item"><span><u>F</u>avorites</span>
+            <ul class="dropdown-menu">
+                <li>Add to Favorites...</li>
+                <li>Organize Favorites...</li>
+            </ul>
+        </div>
+        <div class="menu-item"><span><u>T</u>ools</span>
+            <ul class="dropdown-menu">
+                <li>Map Network Drive...</li>
+                <li>Disconnect Network Drive...</li>
+                <li class="separator"></li>
+                <li>Folder Options...</li>
+            </ul>
+        </div>
+        <div class="menu-item"><span><u>H</u>elp</span>
+            <ul class="dropdown-menu">
+                <li>Help and Support Center</li>
+                <li class="separator"></li>
+                <li>About Windows</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Tabs Component -->
+    <h2>Tabs</h2>
+    <div class="tabs">
+        <menu role="tablist">
+            <button role="tab" aria-selected="true" aria-controls="tab1">General</button>
+            <button role="tab" aria-controls="tab2">Settings</button>
+            <button role="tab" aria-controls="tab3">Advanced</button>
+        </menu>
+        <div role="tabpanel" id="tab1" class="padding">
+            <p>This is the first tab panel with general information.</p>
+            <p>You can put any content here that belongs to the General category.</p>
+        </div>
+        <div role="tabpanel" id="tab2" hidden class="padding">
+            <p>This is the second tab panel with settings-related content.</p>
+            <p>Configuration options would go here.</p>
+        </div>
+        <div role="tabpanel" id="tab3" hidden class="padding">
+            <p>This is the third tab panel with advanced options.</p>
+            <p>Expert-level settings are usually placed here.</p>
+        </div>
+    </div>
+</body>
+
+</html>
