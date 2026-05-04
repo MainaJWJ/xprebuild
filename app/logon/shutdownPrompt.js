@@ -3,6 +3,7 @@
 // 이 파일은 Windows XP 운영체제의 종료 프롬프트와 유사한 UI를 제공합니다.
 // 대기 모드, 종료, 재시작 옵션을 포함하며, 모듈 방식으로 사용할 수 있습니다.
 // 사용 예시는 파일 하단의 주석을 참고하세요.
+const imageBase = new URL('../../image/', import.meta.url).href;
 
 class ShutdownPrompt {
     constructor() {
@@ -230,20 +231,20 @@ class ShutdownPrompt {
             <div id="shutdown-prompt">
                 <div id="shutdown-prompt-header">
                     <span>Turn off computer</span>
-                    <img src="../../image/windowslogo.png" id="logo-small" class="header-logo"/>
+                    <img src="${imageBase}windowslogo.png" id="logo-small" class="header-logo"/>
                 </div>
                 <div id="shutdown-prompt-header-stripe"></div>
                 <div id="shutdown-prompt-options">
                     <div class="shutdown-prompt-option" id="standby-option">
-                        <img src="../../image/standby.png" class="img-button" alt="Stand By"/>
+                        <img src="${imageBase}standby.png" class="img-button" alt="Stand By"/>
                         <span>Stand By</span>
                     </div>
                     <div class="shutdown-prompt-option" id="shutdown-option">
-                        <img src="../../image/turnoff.png" class="img-button" alt="Turn Off"/>
+                        <img src="${imageBase}turnoff.png" class="img-button" alt="Turn Off"/>
                         <span>Turn Off</span>
                     </div>
                     <div class="shutdown-prompt-option" id="restart-option">
-                        <img src="../../image/restart.png" class="img-button" alt="Restart"/>
+                        <img src="${imageBase}restart.png" class="img-button" alt="Restart"/>
                         <span>Restart</span>
                     </div>
                 </div>
@@ -345,11 +346,11 @@ class ShutdownPrompt {
             const restartImg = overlay.querySelector('#restart-option .img-button');
             const restartText = overlay.querySelector('#restart-option span');
 
-            if (standbyImg) standbyImg.src = '../../image/standby.png';
+            if (standbyImg) standbyImg.src = `${imageBase}standby.png`;
             if (standbyText) standbyText.textContent = 'Stand By';
-            if (shutdownImg) shutdownImg.src = '../../image/turnoff.png';
+            if (shutdownImg) shutdownImg.src = `${imageBase}turnoff.png`;
             if (shutdownText) shutdownText.textContent = 'Turn Off';
-            if (restartImg) restartImg.src = '../../image/restart.png';
+            if (restartImg) restartImg.src = `${imageBase}restart.png`;
             if (restartText) restartText.textContent = 'Restart';
 
             // Turn Off 모드에서는 기본 모드 클래스를 적용하여 모든 버튼을 표시
@@ -389,11 +390,11 @@ class ShutdownPrompt {
             const restartImg = overlay.querySelector('#restart-option .img-button');
             const restartText = overlay.querySelector('#restart-option span');
 
-            if (standbyImg) standbyImg.src = '../../image/logoff.png';
+            if (standbyImg) standbyImg.src = `${imageBase}logoff.png`;
             if (standbyText) standbyText.textContent = 'Log Off';
-            if (shutdownImg) shutdownImg.src = '../../image/lock.png';
+            if (shutdownImg) shutdownImg.src = `${imageBase}lock.png`;
             if (shutdownText) shutdownText.textContent = 'Lock';
-            if (restartImg) restartImg.src = '../../image/switchuser.png';
+            if (restartImg) restartImg.src = `${imageBase}switchuser.png`;
             if (restartText) restartText.textContent = 'Switch User';
 
             // Log Off 모드에서는 logoff-mode 클래스를 추가하여 가운데 버튼 숨김

@@ -2538,7 +2538,7 @@ class StartMenu {
       if (!appItem) return;
 
       const appId = appItem.getAttribute('data-app-id');
-      
+
       // APPS 레지스트리에 존재하는지 확인
       if (APPS[appId]) {
         this.close();
