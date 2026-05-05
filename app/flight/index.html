@@ -6,7 +6,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Space Flight Simulator</title>
     <link rel="stylesheet" href="style.css">
-    <script src="../../focusController.js"></script>
 </head>
 
 <body>
@@ -19,44 +18,49 @@
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
 
     <!-- Include our custom modules -->
-    <script src="celestialBodyList.js"></script>
-    <script src="CelestialBodyManager.js"></script>
     <script src="myShipControl.js"></script>
     <script src="uiManager.js"></script>
-    <script src="enemyAi.js"></script>
-    
-    <!-- .io Game Modules -->
-    <script src="core/itemManager.js"></script>
-    <script src="core/playerState.js"></script>
-    <script src="core/gameState.js"></script>
-    <script src="ui/lobbyUI.js"></script>
-    <script src="ui/leaderboard.js"></script>
-    <script src="ui/statsUI.js"></script>
-    <script src="ui/upgradeUI.js"></script>
-    <script src="ui/deathUI.js"></script>
-    <script src="core/aaGunManager.js"></script>
 
     <script type="module">
-        // --- 3D 그래픽 로직 시작 ---
-
         // --- 1. 기본 구성 요소 생성 ---
         const scene = new THREE.Scene();
+        scene.background = new THREE.Color(0xf0f0f0); // 약간 회색빛 도는 흰색
         const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000000);
         const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
         renderer.setSize(window.innerWidth, window.innerHeight);
-        renderer.setClearColor(0x000000, 1);
-        renderer.autoClear = false; // 화면 분할 랜더링을 위해 수동 클리어 허용
+        renderer.setClearColor(0xf0f0f0, 1);
+        renderer.shadowMap.enabled = true; // 그림자 활성화
+        renderer.autoClear = false;
         document.getElementById('world').appendChild(renderer.domElement);
 
-        // --- 2. 조명 설정 ---
-        const ambientLight = new THREE.AmbientLight("#ffffff", 0.5);
+        // --- 2. 조명 및 바닥 추가 ---
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
         scene.add(ambientLight);
 
-        const pointLight = new THREE.PointLight(0xFFFFFF, 1);
-        pointLight.position.set(100, 100, 100);
-        scene.add(pointLight);
+        const dirLight = new THREE.DirectionalLight(0xffffff, 1.0);
+        dirLight.position.set(1000, 2000, 1000);
+        dirLight.castShadow = true;
+        // 그림자 범위 설정
+        dirLight.shadow.camera.left = -5000;
+        dirLight.shadow.camera.right = 5000;
+        dirLight.shadow.camera.top = 5000;
+        dirLight.shadow.camera.bottom = -5000;
+        scene.add(dirLight);
 
-        // --- 3. 초기화 및 애니메이션 루프 ---
+        // 바닥 평면 (그리드 포함) - 더 어둡게 수정
+        const gridHelper = new THREE.GridHelper(400000, 1000, 0x444444, 0x222222);
+        gridHelper.position.y = 0;
+        scene.add(gridHelper);
+
+        const planeGeom = new THREE.PlaneGeometry(400000, 400000);
+        const planeMat = new THREE.MeshPhongMaterial({ color: 0x111111, side: THREE.DoubleSide });
+        const plane = new THREE.Mesh(planeGeom, planeMat);
+        plane.rotation.x = Math.PI / 2;
+        plane.position.y = -0.1;
+        plane.receiveShadow = true;
+        scene.add(plane);
+
+        // --- 3. 초기화 및 제어 설정 ---
         const clock = new THREE.Clock();
         let cameraMode = 'follow';
         document.addEventListener('keydown', (event) => {
@@ -65,52 +69,24 @@
             }
         });
 
-        // 전역 변수
-        let celestialBodyManager;
-
-        // Initialize all modules
         async function init() {
             // UI 관리자 초기화
-            initUIManager();
-            
-            // 신규 UI 모듈 초기화
-            if (window.initLobbyUI) window.initLobbyUI();
-            if (window.initDeathUI) window.initDeathUI();
-            if (window.leaderboardUI) window.leaderboardUI.init();
-            if (window.statsUI) window.statsUI.init();
-            if (window.upgradeUI) window.upgradeUI.init();
-            
-            // 화면 렌더링 상태루프 바인딩
-            window.gameStateManager.initDOM();
+            if (window.initUIManager) window.initUIManager();
 
-            // 1. 천체 관리자 초기화 및 천체 로드
-            celestialBodyManager = new CelestialBodyManager(scene);
-            await celestialBodyManager.loadBodies(CELESTIAL_BODY_LIST);
-            console.log("Celestial bodies loaded.");
-
-            // 2. 우주선 컨트롤러 초기화
+            // 우주선 컨트롤러 초기화
             await initMyShipControl(scene, camera);
             console.log("Spaceship controller initialized.");
-            
-            // 3. 아이템 매니저 초기화
-            if (window.itemManager) {
-                window.itemManager.init(scene);
-            }
 
-            // --- 임시 대공포(AA Gun) 세팅 모듈화 ---
-            if (window.aaGunManager) {
-                window.aaGunManager.init(scene);
-            }
-            // -------------------------------------------------------------------
+            if (window.spawnSpaceship) window.spawnSpaceship();
 
-            // 4. Gizmo(축 방향 표시기) 초기화
+            // Gizmo(축 방향 표시기) 초기화
             const gizmoScene = new THREE.Scene();
             const gizmoCamera = new THREE.PerspectiveCamera(50, 1, 0.1, 100);
-            
+
             const originObj = new THREE.Vector3(0, 0, 0);
-            const arrowX = new THREE.ArrowHelper(new THREE.Vector3(1,0,0), originObj, 20, 0xff0000, 6, 4);
-            const arrowY = new THREE.ArrowHelper(new THREE.Vector3(0,1,0), originObj, 20, 0x00ff00, 6, 4);
-            const arrowZ = new THREE.ArrowHelper(new THREE.Vector3(0,0,1), originObj, 20, 0x0000ff, 6, 4);
+            const arrowX = new THREE.ArrowHelper(new THREE.Vector3(1, 0, 0), originObj, 20, 0xff0000, 6, 4);
+            const arrowY = new THREE.ArrowHelper(new THREE.Vector3(0, 1, 0), originObj, 20, 0x00ff00, 6, 4);
+            const arrowZ = new THREE.ArrowHelper(new THREE.Vector3(0, 0, 1), originObj, 20, 0x0000ff, 6, 4);
             gizmoScene.add(arrowX, arrowY, arrowZ);
 
             const hc = document.getElementById('hud-container') || document.body;
@@ -131,105 +107,64 @@
             const lblY = createLbl('Y', '#55ff55');
             const lblZ = createLbl('Z', '#5555ff');
 
-            // 5. 애니메이션 루프 시작
             function animate() {
                 requestAnimationFrame(animate);
-
                 const delta = clock.getDelta();
 
-                // 1. 공통 시뮬레이션 (로비든 게임이든 항시 굴러감. Spectator Feel)
-                if (celestialBodyManager) celestialBodyManager.update(delta);
-                // 투사체 이동 및 자연 소멸
-                if (window.updateProjectiles) window.updateProjectiles(delta);
-                // 가스/엔진 트레일 자연 소멸
+                // 시뮬레이션 업데이트
                 if (window.updateTrails) window.updateTrails(delta);
-                // 떠다니는 경험치 아이템
-                if (window.itemManager) window.itemManager.update(delta, spaceship);
+                if (window.updateSpaceship) window.updateSpaceship(delta, camera, cameraMode);
+                if (window.updateSpaceshipAnimation) window.updateSpaceshipAnimation(delta);
 
-                // 2. 인공지능 (AI들은 항시 자기들끼리 쏘고 날아다님)
-                // 만약 기체가 스폰되지 않았다면 spaceship객체 파라미터를 우회
-                if (window.updateAllEnemyAI) {
-                    window.updateAllEnemyAI(delta, spaceship, scene);
+                // HUD 렌더
+                if (window.updateHUD && typeof spaceship !== 'undefined' && !spaceship.frozen) {
+                    window.updateHUD(spaceship);
                 }
 
-                // 3. 게임 모드에 따른 분기
-                if (window.gameStateManager && window.gameStateManager.currentState === 'PLAYING') {
-                    // 기체 조종 및 물리력 업데이트
-                    if (window.updateSpaceship) window.updateSpaceship(delta, camera, cameraMode);
-                    if (window.updateSpaceshipAnimation) window.updateSpaceshipAnimation(delta);
-                    // HUD 렌더
-                    if (window.updateHUD && typeof spaceship !== 'undefined' && !spaceship.frozen) {
-                        window.updateHUD(spaceship);
-                        
-                        // --- 임시 대공포 조준 및 격발 로직 모듈화 ---
-                        if (window.aaGunManager) {
-                            window.aaGunManager.update(spaceship);
-                        }
-                        // ---------------------------------
-                    }
-                } else {
-                    // 관전 모드: 로비/데스상태일 때 카메라는 천천히 태양계/우주를 패닝
-                    const t = clock.getElapsedTime() * 0.1;
-                    camera.position.set(Math.sin(t) * 300, 100, Math.cos(t) * 300);
-                    camera.lookAt(0, 50, 0);
-                }
-
-                // Render the main scene
+                // 메인 렌더링
                 renderer.clear();
                 renderer.setViewport(0, 0, window.innerWidth, window.innerHeight);
                 renderer.render(scene, camera);
 
-                // Render the Gizmo
-                if (window.gameStateManager && window.gameStateManager.currentState === 'PLAYING') {
+                // Gizmo 렌더링
+                if (typeof spaceship !== 'undefined' && !spaceship.frozen) {
                     const gizmoSize = 120;
                     const pad = 20;
-                    // viewport uses bottom-left as origin
                     renderer.clearDepth();
                     renderer.setViewport(pad, window.innerHeight - gizmoSize - pad, gizmoSize, gizmoSize);
 
-                    // 기즈모 카메라가 메인 카메라의 회전을 복사해 원점을 바라봄
                     gizmoCamera.position.set(0, 0, 1).applyQuaternion(camera.quaternion).multiplyScalar(50);
                     gizmoCamera.up.copy(camera.up);
-                    gizmoCamera.lookAt(0,0,0);
-                    
+                    gizmoCamera.lookAt(0, 0, 0);
                     renderer.render(gizmoScene, gizmoCamera);
 
-                    // 텍스트 라벨 2D 투영
-                    lblX.style.display = 'block'; lblY.style.display = 'block'; lblZ.style.display = 'block';
-                    
                     const pX = new THREE.Vector3(25, 0, 0).project(gizmoCamera);
                     const pY = new THREE.Vector3(0, 25, 0).project(gizmoCamera);
                     const pZ = new THREE.Vector3(0, 0, 25).project(gizmoCamera);
-                    
-                    const cx = pad + gizmoSize/2;
-                    const cy = pad + gizmoSize/2;
-                    
-                    // DOM은 top-left가 원점이므로 y를 반전
-                    lblX.style.left = (cx + pX.x * gizmoSize/2) + 'px';
-                    lblX.style.top = (cy - pX.y * gizmoSize/2) + 'px';
-                    lblY.style.left = (cx + pY.x * gizmoSize/2) + 'px';
-                    lblY.style.top = (cy - pY.y * gizmoSize/2) + 'px';
-                    lblZ.style.left = (cx + pZ.x * gizmoSize/2) + 'px';
-                    lblZ.style.top = (cy - pZ.y * gizmoSize/2) + 'px';
+
+                    const cx = pad + gizmoSize / 2;
+                    const cy = pad + gizmoSize / 2;
+                    lblX.style.left = (cx + pX.x * gizmoSize / 2) + 'px';
+                    lblX.style.top = (cy - pX.y * gizmoSize / 2) + 'px';
+                    lblY.style.left = (cx + pY.x * gizmoSize / 2) + 'px';
+                    lblY.style.top = (cy - pY.y * gizmoSize / 2) + 'px';
+                    lblZ.style.left = (cx + pZ.x * gizmoSize / 2) + 'px';
+                    lblZ.style.top = (cy - pZ.y * gizmoSize / 2) + 'px';
+                    lblX.style.display = lblY.style.display = lblZ.style.display = 'block';
                 } else {
-                    lblX.style.display = 'none'; lblY.style.display = 'none'; lblZ.style.display = 'none';
+                    lblX.style.display = lblY.style.display = lblZ.style.display = 'none';
                 }
             }
-
             animate();
         }
 
         init();
 
-        // --- 4. 윈도우 크기 조정 처리 ---
         window.addEventListener('resize', () => {
             camera.aspect = window.innerWidth / window.innerHeight;
             camera.updateProjectionMatrix();
             renderer.setSize(window.innerWidth, window.innerHeight);
-            // 라벨이나 뷰포트는 animate 루프 내에서 window.innerHeight를 매 프레임 읽어오므로 자동 갱신됨
         });
-
-        // --- 3D 그래픽 로직 끝 ---
     </script>
 </body>
 
